@@ -486,6 +486,12 @@ namespace InteracGenerator
             InteracDynamicHist = new DynamicHist(this) { UseSquareRoot = true };
         }
 
+        public void SetRandomSeed(int seed)
+        {
+            RIntegrator.SetRandomSeed(seed);
+            Accord.Math.Random.Generator.Seed = seed;
+        }
+
         public Distribution[] BestDistribution(Distribution dist, int size, int rounds = 100, int amount = 2)
         {
             if (dist.DistType == Distribution.DistributionType.Feature)
