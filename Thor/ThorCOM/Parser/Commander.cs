@@ -29,6 +29,8 @@ namespace ThorCOM.Parser
         public const string COMMAND_FEATUREMODEL_CALCULATE_VARIANT_FITNESS = "variant_fitness";
         public const string COMMAND_FEATUREMODEL_CALCULATE_VARIANTS = "variant";
 
+        public const string COMMAND_RANDOM_SEED = "random_seed";
+
         public const string COMMAND_NON_FUNCT_PROPERTY_BINARY_SIZE = "binarysize";
         public const string COMMAND_NON_FUNCT_PROPERTY_PERFORMANCE = "performance";
         public const string COMMAND_NON_FUNCT_PROPERTY_MAINMEMORY = "mainmemory";
@@ -271,6 +273,10 @@ namespace ThorCOM.Parser
                             //PATH
                             case COMMAND_OUTPUT_PATH:
                                 output_path = argument[1];
+                                break;
+                            
+                            case COMMAND_RANDOM_SEED:
+                                _model.SetRandomSeed(Convert.ToInt32(argument[1]));
                                 break;
 
                             //FEATURE
