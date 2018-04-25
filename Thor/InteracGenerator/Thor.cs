@@ -29,6 +29,8 @@ namespace InteracGenerator
 {
     public class Thor : INotifyPropertyChanged
     {
+        public int RandomSeed;
+        public bool hasRandomSeed;
 
         public List<Distribution> AvailableDistributions;
 
@@ -488,6 +490,8 @@ namespace InteracGenerator
 
         public void SetRandomSeed(int seed)
         {
+            hasRandomSeed = true;
+            RandomSeed = seed;
             RIntegrator.SetRandomSeed(seed);
             Accord.Math.Random.Generator.Seed = seed;
         }
