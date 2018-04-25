@@ -36,8 +36,10 @@ namespace ThorCOM.Parser
 
         public const string COMMAND_FEATURES_SCALE_MIN = "feature_scale_min";
         public const string COMMAND_FEATURES_SCALE_MAX = "feature_scale_max";
+        public const string COMMAND_FEATURES_SCALE_EARLY = "feature_scale_early";
         public const string COMMAND_INTERACTIONS_SCALE_MIN = "interaction_scale_min";
         public const string COMMAND_INTERACTIONS_SCALE_MAX = "interaction_scale_max";
+        public const string COMMAND_INTERACTIONS_SCALE_EARLY = "interaction_scale_early";
         public const string COMMAND_FEATURES_INITIAL_FW = "initial_fw";
 
         public const string COMMAND_EVOLUTION_LOGGING = "logging";
@@ -114,6 +116,10 @@ namespace ThorCOM.Parser
         private string featurepath;
         private string interactionpath;
         private string variantpath;
+
+        private bool feature_scale_early;
+        private bool interaction_scale_early;
+
         private BackgroundWorker backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
         private BackgroundWorker backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
         private BackgroundWorker backgroundWorker3 = new System.ComponentModel.BackgroundWorker();
@@ -247,6 +253,9 @@ namespace ThorCOM.Parser
                             case COMMAND_FEATURES_SCALE_MAX:
                                 _model.Setting.FeatureScaleMax = Convert.ToDouble(argument[1]);
                                 break;
+                            case COMMAND_FEATURES_SCALE_EARLY:
+                                feature_scale_early = true;
+                                break;
 
                             //INTERACTION
                             case COMMAND_FEATUREMODEL_NUMBER_OF_INTERACTIONS:
@@ -264,6 +273,9 @@ namespace ThorCOM.Parser
                                 break;
                             case COMMAND_INTERACTIONS_SCALE_MAX:
                                 _model.Setting.InteractionScaleMax = Convert.ToDouble(argument[1]);
+                                break;
+                            case COMMAND_INTERACTIONS_SCALE_EARLY:
+                                interaction_scale_early = true;
                                 break;
                             ///interactionValues.Add(a);
                             //FEATURE MODEL
@@ -515,6 +527,12 @@ namespace ThorCOM.Parser
             {
                 case "feature":
                     {
+                        if (feature_scale_early)
+                        {
+                            featdist = new Distribution(ScaleValues(doublelist, _model.Setting.FeatureScaleMin, _model.Setting.FeatureScaleMax).ToArray());
+                            _model.Setting.FeatureScaleMin = 0.0;
+                            _model.Setting.FeatureScaleMax = 0.0;
+                        }
                         featdist.Name = "featFromFile";
                         featdist.DisplayName = "feat";
                         featdist.DistType = Distribution.DistributionType.Feature;
@@ -522,6 +540,12 @@ namespace ThorCOM.Parser
                     }
                 case "interaction":
                     {
+                        if (interaction_scale_early)
+                        {
+                            featdist = new Distribution(ScaleValues(doublelist, _model.Setting.InteractionScaleMin, _model.Setting.InteractionScaleMax).ToArray());
+                            _model.Setting.InteractionScaleMin = 0.0;
+                            _model.Setting.InteractionScaleMax = 0.0;
+                        }
                         featdist.Name = "interacFromFile";
                         featdist.DisplayName = "interac";
                         featdist.DistType = Distribution.DistributionType.Interaction;
@@ -584,6 +608,19 @@ namespace ThorCOM.Parser
             }
             return values;
         }
+
+        private List<double> ScaleValues(List<double> values, double toMin, double toMax)
+        {
+            List<double> newValues = new List<double>();
+            double fromMin = values.Min();
+            double fromMax = values.Max();
+            foreach (double value in values)
+            {
+                newValues.Add(FMScaling.ScaleFromTo(fromMin, fromMax, toMin, toMax, value));
+            }
+            return newValues;
+        }
+
         public void StartEvolution()
         {
             //Load and Scale Feature
