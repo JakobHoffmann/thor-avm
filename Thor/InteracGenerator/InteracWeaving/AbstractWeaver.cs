@@ -109,7 +109,7 @@ namespace InteracGenerator.InteracWeaving
                 {
                     currentOrder++;
                     index = 1;
-                    while (!(index < orderP[currentOrder] * InteractionValues.Length * 0.01)) currentOrder++;
+                    while ((currentOrder >= orderP.Count()) && !(index < orderP[currentOrder] * InteractionValues.Length * 0.01)) currentOrder++;
                     allInteractions = null;
                 }
                 var tempConfig = SelectRandomInteraction(currentOrder + 2);
