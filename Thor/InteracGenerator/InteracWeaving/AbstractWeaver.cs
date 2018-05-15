@@ -96,6 +96,7 @@ namespace InteracGenerator.InteracWeaving
             //Order of Zero ==  Interaction of two features!
             var currentOrder = 0;
             var index = 0;
+            List<List<T>> allInteractions = null;
 
             for (var i = 0; i < InteractionValues.Length; i++)
             {
@@ -108,21 +109,40 @@ namespace InteracGenerator.InteracWeaving
                 {
                     currentOrder++;
                     index = 1;
+                    while (!(index < orderP[currentOrder] * InteractionValues.Length * 0.01)) currentOrder++;
+                    allInteractions = null;
                 }
                 var tempConfig = SelectRandomInteraction(currentOrder + 2);
 
                 //we already have found this exact same interaction  //TODO check if comparator is working correct
                 if (AlreadyFoundInteraction(tempConfig))
                 {
+                    bool reset = true;
                     Model.Tries++;
                     if (Model.Tries > 5000)
                     {
                         Console.WriteLine("I cant find anymore new Interactions,  decide how to handle this case!");
-                        throw new NotImplementedException();
+                        if(allInteractions == null)
+                        {
+                            allInteractions = GetAllInteractions(currentOrder + 2);
+                        }
+                        foreach (var interaction in allInteractions)
+                        {
+                            if (!AlreadyFoundInteraction(interaction))
+                            {
+                                tempConfig = interaction;
+                                reset = false;
+                                break;
+                            }
+                        }
+                        if (AlreadyFoundInteraction(tempConfig)) throw new NotImplementedException(); 
                     }
-                    i--;
-                    index--;
-                    continue;
+                    if (reset)
+                    {
+                        i--;
+                        index--;
+                        continue;
+                    }
                 }
 
                 //our random feature selection for the interaction is not SAT
@@ -173,7 +193,68 @@ namespace InteracGenerator.InteracWeaving
             return false;
         }
 
-      
+        private List<List<T>> GetAllInteractions(int order)
+        {
+            List<List<T>> allInteractions = new List<List<T>>();
+            T[] tempFeatureList = FeatureList.ToArray().Skip(1).ToArray();
+            foreach (var feature in tempFeatureList)
+            {
+                List<T> config = new List<T>() {feature};
+                allInteractions.Add(config);
+            }
+            for (int i = 0; i < order-1; i++)
+            {
+                List<List<T>> tempAllInteractions = new List<List<T>>();
+                foreach (var feature in tempFeatureList)
+                {
+                    foreach (var config in allInteractions)
+                    {
+                        if (config.Contains(feature))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            List<T> interaction = new List<T>() { feature };
+                            foreach (var interactionfeat in config)
+                            {
+                                interaction.Add(interactionfeat);
+                            }
+                            if (!InteractionIsIn(interaction, tempAllInteractions))
+                            {
+                                tempAllInteractions.Add(interaction);
+                            }
+                        } 
+                    }
+                }
+                allInteractions = tempAllInteractions;
+            }
+            return allInteractions;
+        }
+
+        private bool InteractionIsIn(ICollection<T> newConfig, List<List<T>> configList)
+        {
+            foreach (var foundInter in configList)
+            {
+                var isSame = true;
+                foreach (var interacFeat in foundInter)
+                {
+                    //the Interaction to test does not contain a Feature from the current already found interaction
+                    if (!newConfig.Contains(interacFeat))
+                    {
+                        isSame = false;
+                        break;
+                    }
+                }
+                if (isSame)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
         #region helper
 
         /// <summary>
