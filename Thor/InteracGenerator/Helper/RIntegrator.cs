@@ -41,26 +41,35 @@ namespace InteracGenerator
             {
                 
                 _model = model;
+                String libPath = "./RPackages";
+                if (!Directory.Exists(libPath))
+                {
+                    Directory.CreateDirectory(libPath);
+                }
                 Engine.AutoPrint = false;
+                String requireFormatString = "if (!require('{0}')) install.packages('{0}', lib='{1}',repos='https://cran.uni-muenster.de')";
+                String suppressFormatString = "suppressMessages(library('{0}',lib.loc='{1}'))";
+                String test = String.Format(".libPaths('{0}')", libPath);
+                Engine.Evaluate(String.Format(".libPaths('{0}')",libPath));
 
-                Engine.Evaluate(".libPaths('./RPackages')");
+                Engine.Evaluate(String.Format(requireFormatString, "ks", libPath));   
+                Engine.Evaluate(String.Format(requireFormatString, "ggplot2", libPath));
+                Engine.Evaluate(String.Format(requireFormatString, "scales", libPath));
+                Engine.Evaluate(String.Format(requireFormatString, "gridExtra", libPath));
+                Engine.Evaluate(String.Format(requireFormatString, "scatterplot3d", libPath));
 
-                Engine.Evaluate("if (!require('ks')) install.packages('ks', lib='./RPackages',repos='https://cran.uni-muenster.de')");
-                Engine.Evaluate("if (!require('ggplot2')) install.packages('ggplot2', lib='./RPackages',repos='https://cran.uni-muenster.de')");
-                Engine.Evaluate("if (!require('scales')) install.packages('scales', lib='./RPackages',repos='https://cran.uni-muenster.de')");
-                Engine.Evaluate("if (!require('gridExtra')) install.packages('gridExtra', lib='./RPackages',repos='https://cran.uni-muenster.de')");
-                Engine.Evaluate("if (!require('scatterplot3d')) install.packages('scatterplot3d', lib='./RPackages',repos='https://cran.uni-muenster.de')");
+                Engine.Evaluate(String.Format(suppressFormatString, "ks", libPath));
+                Engine.Evaluate(String.Format(suppressFormatString, "ggplot2", libPath));
+                Engine.Evaluate(String.Format(suppressFormatString, "scales", libPath));
+                Engine.Evaluate(String.Format(suppressFormatString, "gridExtra", libPath));
+                Engine.Evaluate(String.Format(suppressFormatString, "scatterplot3d", libPath));
 
                 Engine.Evaluate("suppressMessages(require('ks', quietly=TRUE))");
-                Engine.Evaluate("suppressMessages(library(ks,lib.loc='./RPackages'))");
                 Engine.Evaluate("require('ggplot2', quietly=TRUE)");
-                Engine.Evaluate("suppressMessages(library(ggplot2,lib.loc='./RPackages'))");
                 Engine.Evaluate("require('scales', quietly=TRUE)");
-                Engine.Evaluate("suppressMessages(library(scales,lib.loc='./RPackages'))");
                 Engine.Evaluate("require(gridExtra)");
-                Engine.Evaluate("suppressMessages(library(gridExtra,lib.loc='./RPackages'))");
                 Engine.Evaluate("require(scatterplot3d)");
-                Engine.Evaluate("suppressMessages(library(scatterplot3d,lib.loc='./RPackages'))");
+
                 Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
                 return true;
             }
