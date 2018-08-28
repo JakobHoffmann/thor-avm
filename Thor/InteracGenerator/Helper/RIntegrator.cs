@@ -70,6 +70,12 @@ namespace InteracGenerator
             }
         }
 
+        public static void SetRandomSeed(int seed) 
+        {
+            Engine.Evaluate(string.Format("set.seed({0})", seed));
+            return;
+        }
+
         public static Distribution BootStrapValues(Distribution dist, int size)
         {
 

@@ -35,7 +35,7 @@ namespace InteracGenerator
         public FMScaling(Thor model)
         {
             _model = model;
-            _rand = new Random();
+            _rand = (model.hasRandomSeed ? new Random(model.RandomSeed) : new Random());
         }
 
         #region Main
