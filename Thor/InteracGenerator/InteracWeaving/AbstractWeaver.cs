@@ -99,7 +99,7 @@ namespace InteracGenerator.InteracWeaving
             var currentOrder = 0;
             var index = 0;
             List<List<T>> allInteractionsOfCurrentOrder = null;
-            if (Model.Setting.AllInteractions)
+            if (Model.Setting.AllInteractions || Model.Setting.RelativeInteractions)
             {
                 allInteractionsOfCurrentOrder = GenerateAllInteractions(currentOrder + 2);
             }
@@ -117,7 +117,7 @@ namespace InteracGenerator.InteracWeaving
                     allInteractionsOfCurrentOrder = null;
                     index = 1;
                     while ((currentOrder >= orderP.Count()) && !(index < orderP[currentOrder] * InteractionValues.Length * 0.01)) currentOrder++;
-                    if (Model.Setting.AllInteractions)
+                    if (Model.Setting.AllInteractions || Model.Setting.RelativeInteractions)
                     {
                         allInteractionsOfCurrentOrder = GenerateAllInteractions(currentOrder + 2);
                     }

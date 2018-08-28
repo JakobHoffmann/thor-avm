@@ -8,7 +8,7 @@ using MachineLearning.Solver;
 
 namespace InteracGenerator.InteracWeaving
 {
-    internal class BinaryOptionAllInteractionGenerator
+    public class BinaryOptionAllInteractionGenerator
     {
 
         private VariantGenerator generator = new VariantGenerator(null);
@@ -69,17 +69,17 @@ namespace InteracGenerator.InteracWeaving
                 return;
             }
 
-            for (int i = index; i < GlobalState.varModel.BinaryOptions.Count; i++)
+            for (int i = index; i < vm.BinaryOptions.Count; i++)
             {
                 if (candidates.Count < t)
                 {
-                    if (!candidates.Contains(GlobalState.varModel.BinaryOptions[i]))
+                    if (!candidates.Contains(vm.BinaryOptions[i]))
                     {
                         List<BinaryOption> newCand = new List<BinaryOption>();
                         newCand.AddRange(candidates);
-                        newCand.Add(GlobalState.varModel.BinaryOptions[i]);
+                        newCand.Add(vm.BinaryOptions[i]);
 
-                        if (newOptionIsValidForCandidate(candidates, GlobalState.varModel.BinaryOptions[i]))
+                        if (newOptionIsValidForCandidate(candidates, vm.BinaryOptions[i]))
                         {
                             generatePowerSet(vm, newCand, t, result, i + 1);
                         }

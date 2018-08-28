@@ -74,7 +74,22 @@ namespace InteracGenerator.InteracWeaving
 
         public override List<List<BinaryOption>> GenerateAllInteractions(int order)
         {
-            return new BinaryOptionAllInteractionGenerator().GenerateAllInteractions(_vm, order);
+            if (Model.Setting.RelativeInteractions)
+            {
+                List<List<BinaryOption>> RelativeInteractionsOfOrder = new List<List<BinaryOption>>();
+                foreach (List<BinaryOption> Interaction in Model.Setting.AllRelativeInteractions)
+                {
+                    if (Interaction.Count == order)
+                    {
+                        RelativeInteractionsOfOrder.Add(Interaction);
+                    }
+                }
+                return RelativeInteractionsOfOrder;
+            }
+            else
+            {
+                return new BinaryOptionAllInteractionGenerator().GenerateAllInteractions(_vm, order);
+            }
         }
     }
 }

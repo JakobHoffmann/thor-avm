@@ -9,6 +9,8 @@ using System.IO;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
+using SPLConqueror_Core;
+using InteracGenerator.InteracWeaving;
 
 namespace ThorCOM.Parser
 {
@@ -45,6 +47,7 @@ namespace ThorCOM.Parser
         public const string COMMAND_INTERACTIONS_SCALE_MAX = "interaction_scale_max";
         public const string COMMAND_FEATURES_INITIAL_FW = "initial_fw";
         public const string COMMAND_INTERACTIONS_GENERATE_ALL = "interaction_generate_all";
+        public const string COMMAND_INTERACTIONS_RELATIVE = "relative";
 
         public const string COMMAND_EVOLUTION_LOGGING = "logging";
         public const string COMMAND_EVOLUTION_LOG_FOLDER = "log_folder";
@@ -297,14 +300,40 @@ namespace ThorCOM.Parser
 
                             //INTERACTION
                             case COMMAND_FEATUREMODEL_NUMBER_OF_INTERACTIONS:
-                                _model.Setting.NumberOfInteractions = Convert.ToInt32(argument[1]);
+                                int value;
+                                if(int.TryParse(argument[1], out value))
+                                {
+                                    _model.Setting.NumberOfInteractions = Convert.ToInt32(value);
+                                }
+                                else{
+                                    string[] SplitArgument = argument[1].Split('_');
+                                    if (SplitArgument.Length > 1 && SplitArgument[0].Equals(COMMAND_INTERACTIONS_RELATIVE))
+                                    {
+                                        string[] relativeInteractionSplit = SplitArgument[1].Split('#');
+                                        List<double> relativeInteractionValues = new List<double>();
+                                        _model.Setting.AllRelativeInteractions = new List<List<BinaryOption>>();
+                                        for (int i = 0; i < relativeInteractionSplit.Length; i++)
+                                        {
+                                            double relativeNumber = Convert.ToDouble(relativeInteractionSplit[i]);
+                                            List<List<BinaryOption>> interactions = SelectRelativeInteractions(i + 2, relativeNumber);
+                                            relativeInteractionValues.Add(interactions.Count());
+                                            _model.Setting.AllRelativeInteractions.AddRange(interactions);
+                                        }
+                                        _model.Setting.InteractionOrderPercent = Scaleto100(relativeInteractionValues);
+                                        _model.Setting.NumberOfInteractions = _model.Setting.AllRelativeInteractions.Count();
+                                        _model.Setting.RelativeInteractions = true;
+                                    }
+                                }
                                 break;
                             case COMMAND_FEATUREMODEL_INTERACTION:
                                 //_SET_ INTERACTION 0.2 0.3 0.4
                                 argument = argument.Skip(1).ToArray();
                                 //_SET_ _INTERACTION 0.2 0.3 0.4
                                 for (int i = 0; i < argument.Count(); ++i) { interactionValues.Add(Convert.ToDouble(argument[i]));}
-                                _model.Setting.InteractionOrderPercent = Scaleto100(interactionValues);
+                                if (!_model.Setting.RelativeInteractions)
+                                {
+                                    _model.Setting.InteractionOrderPercent = Scaleto100(interactionValues);
+                                }
                                 break;
                             case COMMAND_INTERACTIONS_SCALE_MIN:
                                 _model.Setting.InteractionScaleMin = Convert.ToDouble(argument[1]);
@@ -538,10 +567,38 @@ namespace ThorCOM.Parser
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error!");
+                Console.WriteLine("Error!: "+ argument[0]);
             }
 
         }
+
+        private List<List<BinaryOption>> SelectRelativeInteractions(int order, double relativeNumber)
+        {
+            VariabilityModel vm = _model.Vm;
+            List<List<BinaryOption>> allInteractions = new BinaryOptionAllInteractionGenerator().GenerateAllInteractions(_model.Vm, order);
+            int amount = (int)Math.Round(allInteractions.Count * relativeNumber, 0);
+            if (amount > allInteractions.Count)
+            {
+                return allInteractions;          }
+            else
+            {
+                Random Rand = (_model.hasRandomSeed) ? new Random(_model.RandomSeed) : new Random();
+                List<List<BinaryOption>> selectedInteractions = new List<List<BinaryOption>>();
+                List<int> indices = new List<int>();
+                for (int i = 0; i<amount; i++)
+                {
+                    int index = Rand.Next(allInteractions.Count);
+                    while (indices.Contains(index))
+                    {
+                        index = Rand.Next(allInteractions.Count);
+                    }
+                    indices.Add(index);
+                    selectedInteractions.Add(allInteractions.ElementAt(index));
+                }   
+            return selectedInteractions;
+            }
+        }
+
 
         Distribution CreateDistFromFile(string path, string type)
         {
