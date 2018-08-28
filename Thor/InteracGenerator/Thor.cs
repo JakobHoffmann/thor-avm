@@ -29,6 +29,8 @@ namespace InteracGenerator
 {
     public class Thor : INotifyPropertyChanged
     {
+        public int RandomSeed;
+        public bool hasRandomSeed;
 
         public List<Distribution> AvailableDistributions;
 
@@ -572,6 +574,14 @@ namespace InteracGenerator
             FeaturesDynamicHist = new DynamicHist(this) { UseSquareRoot = true };
             VariantDynamicHist = new DynamicHist(this) { UseSquareRoot = true };
             InteracDynamicHist = new DynamicHist(this) { UseSquareRoot = true };
+        }
+
+        public void SetRandomSeed(int seed)
+        {
+            hasRandomSeed = true;
+            RandomSeed = seed;
+            RIntegrator.SetRandomSeed(seed);
+            Accord.Math.Random.Generator.Seed = seed;
         }
 
         public Distribution[] BestDistribution(Distribution dist, int size, int rounds = 100, int amount = 2)
