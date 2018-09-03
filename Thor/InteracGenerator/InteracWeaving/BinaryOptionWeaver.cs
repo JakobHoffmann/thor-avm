@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SPLConqueror_Core;
+using MachineLearning.Sampling.Heuristics;
 
 namespace InteracGenerator.InteracWeaving
 {
@@ -69,6 +70,26 @@ namespace InteracGenerator.InteracWeaving
             //var solver = new CheckConfigSAT(null);  //TODO is this call necessary for the path information??
 
             return t.checkConfigurationSAT(tempConfig, _vm, false);
+        }
+
+        public override List<List<BinaryOption>> GenerateAllInteractions(int order)
+        {
+            if (Model.Setting.RelativeInteractions)
+            {
+                List<List<BinaryOption>> RelativeInteractionsOfOrder = new List<List<BinaryOption>>();
+                foreach (List<BinaryOption> Interaction in Model.Setting.AllRelativeInteractions)
+                {
+                    if (Interaction.Count == order)
+                    {
+                        RelativeInteractionsOfOrder.Add(Interaction);
+                    }
+                }
+                return RelativeInteractionsOfOrder;
+            }
+            else
+            {
+                return new BinaryOptionAllInteractionGenerator().GenerateAllInteractions(_vm, order);
+            }
         }
     }
 }

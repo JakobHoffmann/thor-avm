@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
+using SPLConqueror_Core;
 
 namespace InteracGenerator
 {
@@ -34,6 +35,8 @@ namespace InteracGenerator
 
         private int _numberOfInteractions;
         public bool LoadedInteractions;
+        public bool RelativeInteractions;
+        public List<List<BinaryOption>> AllRelativeInteractions;
         public double SolverTimeout;
         public bool UseInitialFv;
         public double FeatureAdjust = 0.3;
@@ -102,6 +105,8 @@ namespace InteracGenerator
         public double FeatureScaleMax { get; set; }
         public double InteractionScaleMin { get; set; }
         public double InteractionScaleMax { get; set; }
+        public bool AllInteractions { get; set; }
+
 
         public int DrawAngle { get; set; }
         public int PlotStepSize { get; set; }
