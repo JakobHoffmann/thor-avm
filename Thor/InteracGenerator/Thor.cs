@@ -582,6 +582,7 @@ namespace InteracGenerator
             RandomSeed = seed;
             RIntegrator.SetRandomSeed(seed);
             Accord.Math.Random.Generator.Seed = seed;
+            JMetalCSharp.Utils.JMetalRandom.SetRandom(new Random(seed));
         }
 
         public Distribution[] BestDistribution(Distribution dist, int size, int rounds = 100, int amount = 2)
