@@ -132,6 +132,7 @@ namespace InteracGenerator
 
         public void WriteSetting(string fileName = "setting.json")
         {
+            return;
             var json = JsonConvert.SerializeObject(this);
             File.WriteAllText(fileName, json);
         }
